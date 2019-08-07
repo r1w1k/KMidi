@@ -42,7 +42,7 @@ public:
 
 	void sleep(const int &ms);
 
-	void play(Phrase *p, int repeat=1);
+	void play(Phrase *p);
 
 	void note_on(Note n);
 	void note_off(Note n);

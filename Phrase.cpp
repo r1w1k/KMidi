@@ -35,12 +35,6 @@ void Arp::print() const {
 }
 
 void Arp::sequence(vector<int> seq){
-	/*
-	4/4 measure, resolution = 4
-		should come up with 16 steps.
-	4/8 measure, resolution = 4
-		should come up with 16 steps that are half as long.
-	*/
 	double duration_ms = 60.0/bpm/resolution * 1000;
 	pattern = seq;
 	if (!phrase.empty()) phrase = {};

@@ -7,10 +7,9 @@ void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
 
-void MidiOut::play(Phrase *p, int repeat){
-	std::cout << "Playing from " << id << std::endl;
+void MidiOut::play(Phrase *p){
 	std::vector<unsigned char> message(3, '\0');
-	for (int i = 0; i<repeat; i++){
+	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
 			int length{0};
 			for (Note n : nVec){

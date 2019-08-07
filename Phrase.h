@@ -14,6 +14,7 @@ public:
 	
 	int resolution;
 	int bpm = 100;
+	int repeat = 1;
 	vector<vector<Note>> phrase;
 	bool ringout = false;
 

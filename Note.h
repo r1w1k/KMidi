@@ -1,6 +1,6 @@
 #ifndef NOTE_H
 #define NOTE_H
-//BLAH
+
 class Note {
 public:
 	int pitch;

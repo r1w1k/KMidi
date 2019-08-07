@@ -12,6 +12,7 @@ void new_time_sig(Arp& arp, bool redirect=true);
 void new_bpm(Arp& arp, bool redirect=true);
 
 void change_subdivision(Arp& arp, bool redirect=true);
+void multiply(Arp& arp, bool redirect=true);
 
 int main()
 {
@@ -50,7 +51,7 @@ void newArp(){
 
 void playloop(Arp& arp){
 	std::cout << "playing..." << std::endl;
-	mOut.play(&arp, 1);
+	mOut.play(&arp);
 	homescreen(arp);
 }
 
@@ -114,6 +115,12 @@ void change_subdivision(Arp& arp, bool redirect){
 	arp.sequence(arp.pattern);
 	if (redirect) homescreen(arp);
 }
+void multiply(Arp& arp, bool redirect){
+	std::cout << "How many repeats?" << std::endl;
+	std::cin >> arp.repeat;
+	if (redirect) homescreen(arp);
+}
+
 void homescreen(Arp& arp){
 	mIn.clear_queue();
 	if (!arp.voices.empty()){
@@ -158,9 +165,7 @@ void homescreen(Arp& arp){
 			case 'a':
 				newArp(); break;
 			case 'm':
-				arp = arp * 4;
-				homescreen(arp);
-				break;
+				multiply(arp); break;
 			case 'q': break;
 			default:
 				homescreen(arp);
