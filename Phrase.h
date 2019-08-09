@@ -24,14 +24,8 @@ public:
 
 
 	Phrase(int l=16, int r=4);
-	~Phrase() = default;
+	virtual ~Phrase() = default;
 
-};
-
-
-class Measure : public Phrase{
-public:
-	Measure(int count=4, int division=4, int r=16);
 };
 
 class Arp : public Phrase{

@@ -148,11 +148,9 @@ std::map<int, std::string> KMidi::note_names_flats = {
 	{10, "Bb"},
 	{11, "B"}
 };
-
-std::string KMidi::note_name(int decimal){
+std::string KMidi::note_name(int decimal, bool use_flats){
 	std::string note;
-	if (true) note = KMidi::note_names_flats.at(decimal%12);
-	else note = KMidi::note_names.at(decimal%12);
+	note = use_flats ? KMidi::note_names_flats.at(decimal%12) : KMidi::note_names.at(decimal%12);
 
 	char octave =  '0' + (decimal/12 - 1);
 	return note + octave;

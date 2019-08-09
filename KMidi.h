@@ -13,12 +13,9 @@
 #include "Phrase.h"
 
 namespace KMidi{
-	//utility MIDI stuff goes here
 	extern std::map<int, std::string> note_names;
 	extern std::map<int, std::string> note_names_flats;
-
-	std::string note_name(int decimal);
-	// bool use_flats = false;
+	std::string note_name(int decimal, bool use_flats = true);
 }
 
 class MidiIn{
@@ -52,4 +49,5 @@ public:
 	MidiOut(int c=0);
 	~MidiOut();
 };
+
 #endif
