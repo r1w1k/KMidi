@@ -8,13 +8,8 @@ Phrase::Phrase(int l, int r)
 	: length{l}, resolution{r}{
 }
 
-Measure::Measure(int count, int division, int r)
-	: Phrase(count*division*r/16, r) {
-	std::cout << "Measure ctor" << std::endl;
-}
-
 void Phrase::print() const{
-	cout << "Generic print" << endl;
+	// cout << "Generic print" << endl;
 }
 
 void Arp::print() const {
@@ -35,12 +30,6 @@ void Arp::print() const {
 }
 
 void Arp::sequence(vector<int> seq){
-	/*
-	4/4 measure, resolution = 4
-		should come up with 16 steps.
-	4/8 measure, resolution = 4
-		should come up with 16 steps that are half as long.
-	*/
 	double duration_ms = 60.0/bpm/resolution * 1000;
 	pattern = seq;
 	if (!phrase.empty()) phrase = {};
@@ -75,11 +64,6 @@ void Arp::extend(int oct){
 	// }
 	// voices.insert(voices.end(), additions.begin(), additions.end());
 }
-// void Arp::stretch(int octaves){
-// 	//this will keep the same amount of voices, but spread/invert them across the range
-// 	//oh that's actually really hard.  Hm. TODO
-	
-// }
 
 void Phrase::transpose(int halfsteps){
 	// for (auto &note : notes) note.pitch += halfsteps;
@@ -87,7 +71,6 @@ void Phrase::transpose(int halfsteps){
 void Phrase::oct(int octaves){
 	// this->transpose(octaves*12);
 }
-
 
 Arp::Arp(vector<int> v, int length_val)
 //TODO: check syntax of initializer list - does it have to be curlies?
@@ -112,14 +95,11 @@ Arp Arp::operator+(int a) const{
 Arp Arp::operator*(int a) const{
 	Arp ret = *this;
 	std::vector<std::vector<Note>> multiplied{};
-	std::cout << "Here 1" << std::endl;
 	for (int i=0; i < a; i++){
-		std::cout << "Here 2" << std::endl;
 		for (std::vector<Note> notes : ret.phrase){
 			multiplied.push_back(notes);
 		}
 	}
 	ret.phrase = multiplied;
-	std::cout << "Here 3" << std::endl;
 	return ret;
 }

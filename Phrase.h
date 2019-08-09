@@ -11,9 +11,10 @@ public:
 	int length;
 	int count = 4;
 	int division = 4;
-	;
+
 	int resolution;
 	int bpm = 100;
+	int repeat = 1;
 	vector<vector<Note>> phrase;
 	bool ringout = false;
 
@@ -23,14 +24,9 @@ public:
 
 
 	Phrase(int l=16, int r=4);
-	~Phrase() = default;
 
-};
+	virtual ~Phrase() = default;
 
-
-class Measure : public Phrase{
-public:
-	Measure(int count=4, int division=4, int r=16);
 };
 
 class Arp : public Phrase{

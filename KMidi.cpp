@@ -6,16 +6,13 @@
 void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
-
-void MidiOut::play(Phrase *p, int repeat){
-	std::cout << "Playing from " << id << std::endl;
+void MidiOut::play(Phrase *p){
 	std::vector<unsigned char> message(3, '\0');
-	for (int i = 0; i<repeat; i++){
+	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
 			int length{0};
 			for (Note n : nVec){
 				if (n.velocity > 0){
-					std::cout << "Note on!" << std::endl;
 					note_on(n);
 				}
 				sleep(n.duration);		
@@ -40,17 +37,15 @@ MidiOut::MidiOut(int c){
 
 	int output_port{-99};
 	for (int i = 0; i < ports; i++){
-		std::cout << out->getPortName(i) << std::endl;
-		if (out->getPortName(i) == "IAC Driver Input port")
+		if (out->getPortName(i) == KMIDI_OUTPUT)
 			output_port = i;
 	}
-	
 	if (output_port >= 0){
 		out->openPort(output_port);
 		id = out->getPortName(output_port);
 	}
 	else
-		std::cout << "IAC Driver not found - MIDI Out uninitialized" << std::endl;
+		std::cout << "MIDI Out uninitialized" << std::endl;
 }
 
 MidiOut::~MidiOut(){
@@ -85,7 +80,6 @@ MidiIn::MidiIn(){
 
 	int keyboard_port{-99};
 	for (int i = 0; i < ports; i++){
-		std::cout << "Port: " << in->getPortName(i) << std::endl;
 		if (in->getPortName(i) == KEYBOARD)
 			keyboard_port = i;
 	}
@@ -153,12 +147,9 @@ std::map<int, std::string> KMidi::note_names_flats = {
 	{10, "Bb"},
 	{11, "B"}
 };
-
-std::string KMidi::note_name(int decimal){
+std::string KMidi::note_name(int decimal, bool use_flats){
 	std::string note;
-	if (true) note = KMidi::note_names_flats.at(decimal%12);
-	else note = KMidi::note_names.at(decimal%12);
-
+	note = use_flats ? KMidi::note_names_flats.at(decimal%12) : KMidi::note_names.at(decimal%12);
 	char octave =  '0' + (decimal/12 - 1);
 	return note + octave;
 }

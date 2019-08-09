@@ -2,10 +2,10 @@ COMP=g++ -std=c++14
 MIDIFrame=-framework CoreMIDI -framework CoreAudio -framework CoreFoundation
 APPFILES=main.cpp Phrase.o Note.o RtMidi.o KMidi.o
 
-app: main.cpp Note.o Phrase.o KMidi.o
-	$(COMP) -Wall -o KMidi $(APPFILES) $(MIDIFrame)
+kArp: main.cpp Note.o Phrase.o KMidi.o
+	$(COMP) -Wall -o kArp $(APPFILES) $(MIDIFrame)
 
-KMidi.o: KMidi.h KMidi.cpp
+KMidi.o: KMidi.h KMidi.cpp RtMidi.o
 	$(COMP) -D__MACOSX_CORE__ -c KMidi.cpp
 
 RtMidi.o: RtMidi.h RtMidi.cpp
