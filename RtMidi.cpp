@@ -805,8 +805,10 @@ static void midiInputCallback( const MIDIPacketList *list, void *procRef, void *
         }
         else {
           // As long as we haven't reached our queue size limit, push the message.
-          if ( !data->queue.push( message ) )
-            std::cerr << "\nMidiInCore: message queue limit reached!!\n\n";
+          if ( !data->queue.push( message ) ){
+            //rk 8/9/19: handling this
+            // std::cerr << "\nMidiInCore: message queue limit reached!!\n\n";
+          }
         }
         message.bytes.clear();
       }
