@@ -18,14 +18,13 @@ void new_bpm(Arp& arp, bool redirect=true);
 void change_subdivision(Arp& arp, bool redirect=true);
 void multiply(Arp& arp, bool redirect=true);
 
-void startup(){}
-
 char get_option(std::string message=""){
-	if (message.empty())
+	if (!message.empty()){
 		std::cout << message << std::endl;
-	std::string input;
-	getline(std::cin, input);
-	return std::tolower(input[0]);
+	}
+	std::string answer;
+	getline(std::cin, answer);
+	return std::tolower(answer[0]);
 }
 
 
@@ -46,6 +45,7 @@ std::vector<Note> get_arp_voices(){
 
 		std::string temp;
 		std::getline(std::cin, temp);
+		
 		return mIn.get_voices();
 	}
 	else {
@@ -74,9 +74,9 @@ void play_current(Arp& arp){
 	editor(arp);
 }
 void play_all(){
-	for (Arp& arp : playlist){
-		std::cout << "Start phrase" << std::endl;
-		mOut.play(&arp);
+	for (int i=0; i < playlist.size(); i++){
+		std::cout << "Phrase " << i + 1 << std::endl;
+		mOut.play(&playlist.at(i));
 	}
 	homescreen();
 }
@@ -153,6 +153,7 @@ void homescreen(){
 	std::cout << "n     new phrase" << std::endl;
 	std::cout << "e     edit phrase" << std::endl;
 	std::cout << "r     remove phrase" << std::endl;
+	std::cout << "q     quit" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 
 	switch(get_option("Enter option: ")){
@@ -161,10 +162,13 @@ void homescreen(){
 			break;
 		case 'n':
 			newArp();
+			break;
 		case 'e':
 			edit_phrase();
+			break;
 		case 'r':
 			remove_phrase();
+			break;
 		case 'q':
 			break;
 		default:
