@@ -2,12 +2,16 @@
 #include "KMidi.h"
 #include "RtMidi.h"
 #include <iostream>
+#include <chrono>
 
 void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
 void MidiOut::play(Phrase *p){
 	std::vector<unsigned char> message(3, '\0');
+	auto now = chrono::steady_clock::now();
+	auto then = now;
+	double latency = 0;
 	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
 			int length{0};
@@ -15,7 +19,10 @@ void MidiOut::play(Phrase *p){
 				if (n.velocity > 0){
 					note_on(n);
 				}
-				sleep(n.duration);		
+				sleep(n.duration - latency);
+				now = chrono::steady_clock::now();
+				latency = chrono::duration_cast<chrono::milliseconds>(now - then).count() - n.duration;
+				then = now;
 			}
 			if (!p->ringout){
 				for (Note n : nVec){
