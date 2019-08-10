@@ -8,6 +8,7 @@ void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
 void MidiOut::play(Phrase *p){
+	//TOD0: this needs to not only do intra-phrase latency, but latency between phrases (or between repeats of a single phrase)
 	std::vector<unsigned char> message(3, '\0');
 	auto now = chrono::steady_clock::now();
 	auto then = now;
