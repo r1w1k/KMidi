@@ -18,27 +18,39 @@ void new_bpm(Arp& arp, bool redirect=true);
 void change_subdivision(Arp& arp, bool redirect=true);
 void multiply(Arp& arp, bool redirect=true);
 
+void startup(){}
+
+char get_option(std::string message=""){
+	if (message.empty())
+		std::cout << message << std::endl;
+	std::string input;
+	getline(std::cin, input);
+	return std::tolower(input[0]);
+}
+
+
 std::vector<Arp> playlist{};
 
 int main()
 {
+	startup();
 	newArp();
 	return 0;
 }
+
 
 std::vector<Note> get_arp_voices(){
 	if (mIn.open){
 		mIn.clear_queue();
 		std::cout << "Play voices (press enter when done):";
 
-		std::cin.ignore(10000, '\n');
 		std::string temp;
 		std::getline(std::cin, temp);
 		return mIn.get_voices();
 	}
 	else {
 		//just some Cmin7 placeholder when no keyboard is available
-		return {Note(48), Note(58), Note(63), Note(67), Note(68)};
+		return {Note(48), Note(58), Note(63), Note(67), Note(72)};
 	}
 }	
 
@@ -76,7 +88,7 @@ void togglewrap(Arp& arp){
 }
 
 void togglering(Arp& arp){
-	arp.ringout = !arp.ringout;
+	arp.ringout = !arp.ringout;	
 	editor(arp);
 }
 void new_sequence(Arp& arp){
@@ -135,7 +147,6 @@ void multiply(Arp& arp, bool redirect){
 }
 void homescreen(){
 	mIn.clear_queue();
-	std::cin.ignore(10000, '\n');
 	std::cout << std::endl << std::endl << std::endl << "Homescreen" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 	std::cout << "p     play" << std::endl;
@@ -144,9 +155,7 @@ void homescreen(){
 	std::cout << "r     remove phrase" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 
-	char c;
-	std::cin >> c;
-	switch(std::tolower(c)){
+	switch(get_option("Enter option: ")){
 		case 'p':
 			play_all();
 			break;
@@ -156,10 +165,11 @@ void homescreen(){
 			edit_phrase();
 		case 'r':
 			remove_phrase();
-		default:
+		case 'q':
 			break;
+		default:
+			homescreen();
 	}
-	homescreen();
 }
 
 void edit_phrase(){
@@ -169,6 +179,7 @@ void edit_phrase(){
 	if (p > 0 && p <= playlist.size()){
 		editor(playlist[p-1]);
 	}
+
 }
 void remove_phrase(){
 	int p;
@@ -181,7 +192,6 @@ void remove_phrase(){
 
 void editor(Arp& arp){
 	mIn.clear_queue();
-	std::cin.ignore(10000, '\n');
 	if (!arp.voices.empty()){
 		std::cout << std::endl;
 		std::cout << std::endl << std::endl << std::endl << "Phrase Editor" << std::endl;
@@ -205,9 +215,7 @@ void editor(Arp& arp){
 		std::cout << "e     save edits to playlist" << std::endl;
 		std::cout << "------------------------------------------------------------" << std::endl;
 
-		char c;
-		std::cin >> c;
-		switch(std::tolower(c)){
+		switch(get_option("Enter option: ")){
 			case 'p':
 				play_current(arp); break;
 			case 'n':
