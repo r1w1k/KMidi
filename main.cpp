@@ -6,7 +6,6 @@
 MidiOut mOut(0);
 MidiIn mIn;
 
-
 void homescreen();
 void editor(Arp& arp);
 void edit_phrase();
@@ -17,6 +16,7 @@ void new_bpm(Arp& arp, bool redirect=true);
 
 void change_subdivision(Arp& arp, bool redirect=true);
 void multiply(Arp& arp, bool redirect=true);
+
 
 char get_option(std::string message=""){
 	if (!message.empty()){
@@ -35,20 +35,8 @@ int main()
 	return 0;
 }
 
-std::vector<Note> get_arp_voices(){
-	if (mIn.open){
-		mIn.clear_queue();
-		std::cout << "Play voices (press enter when done):";
-
-		std::string temp;
-		std::getline(std::cin, temp);
-		
-		return mIn.get_voices();
-	}
-	else {
-		//just some Cmin7 placeholder when no keyboard is available
-		return {Note(48), Note(58), Note(63), Note(67), Note(68)};
-	}
+std::vector<std::vector<Note>> get_arp_voices(){
+	return mIn.get_voices();
 }	
 
 void change_voices(Arp& arp){
@@ -143,7 +131,6 @@ void multiply(Arp& arp, bool redirect){
 	if (redirect) editor(arp);
 }
 void homescreen(){
-	mIn.clear_queue();
 	std::cout << std::endl << std::endl << std::endl << "Homescreen" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 	std::cout << "p     play" << std::endl;
@@ -191,13 +178,15 @@ void remove_phrase(){
 }
 
 void editor(Arp& arp){
-	mIn.clear_queue();
 	if (!arp.voices.empty()){
 		std::cout << std::endl;
 		std::cout << std::endl << std::endl << std::endl << "Phrase Editor" << std::endl;
 		std::cout << "------------------------------------------------------------" << std::endl << std::endl;
-		for (Note n : arp.voices){
-			std::cout << KMidi::note_name(n.pitch) << " ";
+		for (std::vector<Note> n : arp.voices){
+			for (Note n2 : n){
+				std::cout << KMidi::note_name(n2.pitch) << (n.size() > 1 ? "-" : "");
+			}
+			std::cout << " ";
 		}
 		std::cout << std::endl << arp.count << "/" << arp.division << std::endl;
 		std::cout << arp.resolution << " notes per count" << std::endl << std::endl;

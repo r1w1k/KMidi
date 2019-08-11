@@ -24,7 +24,7 @@ public:
 	bool open = false;
 	std::string id;
 
-	std::vector<Note> get_voices();
+	std::vector<std::vector<Note>> get_voices();
 	void clear_queue();
 
 	MidiIn();

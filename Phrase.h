@@ -32,7 +32,7 @@ public:
 class Arp : public Phrase{
 public:
 	string name;
-	vector<Note> voices;
+	vector<vector<Note>> voices;
 	vector<int> pattern;
 
 	bool wraparound{false};
