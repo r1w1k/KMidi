@@ -13,46 +13,34 @@ void Phrase::print() const{
 }
 
 void Arp::print() const {
-	cout << name << endl;
-	cout << "Voices" << endl;
-	for (Note n : voices) cout << n.pitch << " ";
-	cout << endl;
 
-	cout << "Pattern" << endl;
-	for (int i : pattern) cout << i << " ";
-	cout << endl;
-
-	cout << "Arpeggio" << endl;
-	//TODO (or not, who knows if I'll actually want this print function)
-	//make sure this prints all notes in the step, not just the 1st
-	for (vector<Note> n : phrase) cout << n[0].pitch << " ";
-	cout << endl << endl;
 }
 
 void Arp::sequence(vector<int> seq){
 	double duration_ms = 60.0/bpm/resolution * 1000;
 	pattern = seq;
 	if (!phrase.empty()) phrase = {};
-	int  chordtone{0};
+	int  step{0};
 	
 	int step_count = count*resolution;
 	for (size_t i{0}; i < step_count; i++){
-		//TODO: clean up this initializing mess
-		Note next_note(0);
-		if (chordtone >= 0 &&  chordtone < voices.size()){
-			next_note = voices.at(chordtone);
-			next_note.duration = duration_ms;
-			phrase.push_back(vector<Note>{next_note});
+		std::vector<Note> next_note{};
+		if (step >= 0 && step < voices.size()){
+			next_note = voices.at(step);
+			for (Note &n : next_note) 
+				n.duration = duration_ms;
+			phrase.push_back(next_note);
 		}
 		else if (wraparound){
-			next_note = voices.at(chordtone % voices.size());
-			next_note.duration = duration_ms;
-			phrase.push_back(vector<Note>{next_note});
+			next_note = voices.at(step % voices.size());
+			for (Note &n : next_note) 
+				n.duration = duration_ms;
+			phrase.push_back(next_note);
 		}
 		else
 			phrase.push_back(vector<Note>{Rest(duration_ms)});
 		//loop over the pattern vector to see what tone to jump to next
-		chordtone += pattern.at(i % pattern.size());
+		step += pattern.at(i % pattern.size());
 	}
 }
 
