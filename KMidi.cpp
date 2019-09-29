@@ -4,6 +4,18 @@
 #include <iostream>
 #include <chrono>
 
+namespace ControllerInput {
+	int channel { 0 };
+	int tapped_tempo { 100 };
+	std::vector<std::vector<Note>> phrase{};
+	unsigned char last_message = NOTE_OFF | channel;
+	bool recording { false };
+
+	void phrase_callback(double deltatime, std::vector<unsigned char> *message, void *userData);
+	void tap_tempo_callback(double deltatime, std::vector<unsigned char> *message, void *userData);
+}
+
+
 void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
@@ -13,7 +25,6 @@ void MidiOut::play(Phrase *p){
 	std::vector<unsigned char> message(3, '\0');
 	auto now = chrono::steady_clock::now();
 	auto then = now;
-	double latency = 0;
 	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
 			int length{0};
@@ -22,9 +33,8 @@ void MidiOut::play(Phrase *p){
 					note_on(n);
 				}
 			}
-			sleep(nVec.at(0).duration - latency);
+			sleep(nVec.at(0).duration);
 			now = chrono::steady_clock::now();
-			latency = chrono::duration_cast<chrono::milliseconds>(now - then).count() - nVec.at(0).duration;
 			then = now;
 
 			if (!p->ringout){
@@ -46,13 +56,20 @@ MidiOut::MidiOut(int c){
 	unsigned int ports = out->getPortCount();
 
 	int output_port{-99};
+
+	std::cout << "MIDI OUT available ports:" << std::endl;
 	for (int i = 0; i < ports; i++){
+		std::cout << out->getPortName(i) << std::endl;
 		if (out->getPortName(i) == KMIDI_OUTPUT)
 			output_port = i;
 	}
+	std::cout << std::endl;
+
 	if (output_port >= 0){
 		out->openPort(output_port);
 		id = out->getPortName(output_port);
+		std::cout << "Connected output to " << id << std::endl << std::endl;
+		;
 	}
 	else
 		std::cout << "MIDI Out uninitialized" << std::endl;
@@ -81,44 +98,28 @@ void MidiOut::all_notes_off(){
 	message.at(0) = CHANNEL_MODE | channel;
 	message.at(1) = ALL_OFF;
 	message.at(2) = 0;
-	out->sendMessage(&message);
-}
-
-namespace Controller_Input {
-	int channel{0};
-	std::vector<std::vector<Note>> phrase{};
-	unsigned char last_message = NOTE_OFF;
-
-	void callback( double deltatime, std::vector<unsigned char> *message, void *userData){
-		if (message->at(0) == (NOTE_ON | channel)){
-			if (last_message == (NOTE_ON | channel)){
-				phrase.back().push_back(Note(message->at(1), 1, message->at(2)));
-			}
-			else{
-				//new entry
-				Note new_note = Note(message->at(1), 1, message->at(2));
-				phrase.push_back(std::vector<Note>{new_note});
-			}
-		}
-		last_message = message->at(0);
-	}
+	// out->sendMessage(&message);
 }
 
 MidiIn::MidiIn(){
 	in = new RtMidiIn();
 	unsigned int ports = in->getPortCount();
-
+	std::cout << "MIDI IN available ports:" << std::endl;
 	int keyboard_port{-99};
 	for (int i = 0; i < ports; i++){
+		std::cout << in->getPortName(i) << std::endl;
 		if (in->getPortName(i) == KEYBOARD)
 			keyboard_port = i;
 	}
+	std::cout << std::endl;
 	
 	if (keyboard_port >= 0){
 		in->openPort(keyboard_port);
-		in->setCallback(&Controller_Input::callback);
+		in->setCallback(&ControllerInput::phrase_callback);
 		id = in->getPortName(keyboard_port);
 		open = true;
+
+		std::cout << "Connected input to " << id << std::endl << std::endl;
 	}
 	else
 		std::cout << "Keyboard not found - MIDI In uninitialized" << std::endl;
@@ -128,19 +129,33 @@ MidiIn::~MidiIn(){
 	delete in;
 }
 
+void obtain_input(){
+	std::cout << "Press enter when done: " << std::endl;
+	std::string temp;
+	std::getline(std::cin, temp);
+}
 std::vector<std::vector<Note>> MidiIn::get_voices(){
-	Controller_Input::phrase.clear();
+	ControllerInput::phrase.clear();
+	ControllerInput::recording = true;
 	if (open){
-		std::cout << "Play voices (press enter when done):";
-		std::string temp;
-		std::getline(std::cin, temp);
-		return Controller_Input::phrase;
+		obtain_input();
+		ControllerInput::recording = false;
+		return ControllerInput::phrase;
 	}
 	else {
 		//just some Cmin7 placeholder when no keyboard is available
 		return {{Note(48)}, {Note(58)}, {Note(63)}, {Note(67)}, {Note(68)}};
 	}
+}
 
+int MidiIn::tap_tempo(){
+	in->setCallback(&ControllerInput::tap_tempo_callback);
+	if (open){
+		obtain_input();
+		return ControllerInput::tapped_tempo;
+	}
+	in->setCallback(&ControllerInput::phrase_callback);
+	return ControllerInput::tapped_tempo;
 }
 
 void MidiIn::clear_queue(){
@@ -179,9 +194,50 @@ std::map<int, std::string> KMidi::note_names_flats = {
 	{10, "Bb"},
 	{11, "B"}
 };
-std::string KMidi::note_name(int decimal, bool use_flats){
+std::string KMidi::note_name(int note_pitch, bool use_flats){
+	if (note_pitch == 0) return " } ";
+
 	std::string note;
-	note = use_flats ? KMidi::note_names_flats.at(decimal%12) : KMidi::note_names.at(decimal%12);
-	char octave =  '0' + (decimal/12 - 1);
+	note = use_flats ? KMidi::note_names_flats.at(note_pitch%12) : KMidi::note_names.at(note_pitch%12);
+	char octave =  '0' + (note_pitch/12 - 1);
 	return note + octave;
+}
+
+void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned char> *message, void *userData){
+	if (recording){
+		int msg = message->at(0);
+		int pitch = message->at(1);
+		int velocity = message->at(2);
+		//for debugging what messages are allowed:
+		// std::cout << msg << " " << pitch << " " << velocity << std::endl;
+		// std::vector<int> allowable { NOTE_ON, NOTE_OFF, MODULATE }
+
+		if (phrase.size() > 1000) phrase.clear();
+
+		if (msg == (NOTE_ON | channel)){
+			if (last_message == (NOTE_ON | channel)){
+				phrase.back().push_back(Note(pitch, 1, velocity));
+			}
+			else if (velocity > 0){
+				//new entry
+				Note new_note = Note(pitch, 1, velocity);
+				phrase.push_back(std::vector<Note>{new_note});
+			}
+		}
+		else if ((last_message == (NOTE_OFF | channel) ||
+				last_message == (REST_MSG | channel)) &&
+				msg == (REST_MSG | channel) &&
+				pitch == 0 && velocity == 64){
+			phrase.push_back(std::vector<Note>{Rest(1)});
+		}
+
+		if (msg == (NOTE_ON | channel) && velocity == 0){
+			last_message = NOTE_OFF | channel;
+		}
+		else last_message = msg;
+	}
+}
+
+void ControllerInput::tap_tempo_callback(double deltatime, std::vector<unsigned char> *message, void *userData){
+	std::cout << "deltatime " << deltatime << std::endl;
 }

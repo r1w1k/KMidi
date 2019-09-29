@@ -9,6 +9,7 @@ MidiIn mIn;
 void homescreen();
 void editor(Arp& arp);
 void edit_phrase();
+void add_repeats();
 void remove_phrase();
 void newArp();
 void new_time_sig(Arp& arp, bool redirect=true);
@@ -16,7 +17,6 @@ void new_bpm(Arp& arp, bool redirect=true);
 
 void change_subdivision(Arp& arp, bool redirect=true);
 void multiply(Arp& arp, bool redirect=true);
-
 
 char get_option(std::string message=""){
 	if (!message.empty()){
@@ -29,10 +29,10 @@ char get_option(std::string message=""){
 
 
 std::vector<Arp> playlist{};
+int repeats{1};
 
 int main()
 {
-	startup();
 	newArp();
 	return 0;
 }
@@ -62,9 +62,11 @@ void play_current(Arp& arp){
 	editor(arp);
 }
 void play_all(){
-	for (int i=0; i < playlist.size(); i++){
-		std::cout << "Phrase " << i + 1 << std::endl;
-		mOut.play(&playlist.at(i));
+	for (int i=0; i < repeats; i++){
+		for (int j=0; j < playlist.size(); j++){
+			std::cout << "Phrase " << j + 1 << std::endl;
+			mOut.play(&playlist.at(j));
+		}
 	}
 	homescreen();
 }
@@ -76,6 +78,11 @@ void togglewrap(Arp& arp){
 }
 
 void togglering(Arp& arp){
+	if (arp.ringout)
+		for (std::vector<Note> notes : arp.phrase)
+			for (Note n : notes)
+				mOut.note_off(n);
+			
 	arp.ringout = !arp.ringout;	
 	editor(arp);
 }
@@ -153,6 +160,9 @@ void homescreen(){
 		case 'e':
 			edit_phrase();
 			break;
+		case 'm':
+			add_repeats();
+			break;
 		case 'r':
 			remove_phrase();
 			break;
@@ -171,6 +181,12 @@ void edit_phrase(){
 		editor(playlist[p-1]);
 	}
 
+}
+
+void add_repeats(){
+	std::cout << "Enter repeats:" << std::endl;
+	std::cin >> repeats;
+	homescreen();
 }
 void remove_phrase(){
 	int p;
