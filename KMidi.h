@@ -8,8 +8,8 @@
 //REST_MSG is currently actually the pitch wheel for reface
 #define REST_MSG 0b11100000
 #define ALL_OFF 0b01111011
-#define KEYBOARD "reface CS"
-#define KMIDI_OUTPUT "reface CS"
+#define KEYBOARD "nanoKEY2 KEYBOARD"
+#define KMIDI_OUTPUT "IAC Driver KMidi"
 
 #include <map>
 #include "RtMidi.h"

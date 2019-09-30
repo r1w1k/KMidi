@@ -58,14 +58,12 @@ MidiOut::MidiOut(int c){
 	int output_port{-99};
 
 	std::cout << "MIDI OUT available ports:" << std::endl;
-	for (int i = 0; i < ports; i++){
-		std::cout << out->getPortName(i) << std::endl;
-		if (out->getPortName(i) == KMIDI_OUTPUT)
-			output_port = i;
-	}
-	std::cout << std::endl;
-
-	if (output_port >= 0){
+	for (int i = 0; i < ports; i++)
+		std::cout << i + 1 << ": " << out->getPortName(i) << std::endl;
+	std::cout << "Enter output port number: ";
+	std::cin >> output_port;
+	
+	if (output_port >= 0 && output_port < ports){
 		out->openPort(output_port);
 		id = out->getPortName(output_port);
 		std::cout << "Connected output to " << id << std::endl << std::endl;
@@ -106,19 +104,17 @@ MidiIn::MidiIn(){
 	unsigned int ports = in->getPortCount();
 	std::cout << "MIDI IN available ports:" << std::endl;
 	int keyboard_port{-99};
-	for (int i = 0; i < ports; i++){
-		std::cout << in->getPortName(i) << std::endl;
-		if (in->getPortName(i) == KEYBOARD)
-			keyboard_port = i;
-	}
+	for (int i = 0; i < ports; i++)
+		std::cout << i+1 << ": " << in->getPortName(i) << std::endl;
+
 	std::cout << std::endl;
-	
-	if (keyboard_port >= 0){
+	std::cout << "Enter port number: ";
+	std::cin >> keyboard_port; keyboard_port--;
+	if (keyboard_port >= 0 && keyboard_port < ports){
 		in->openPort(keyboard_port);
 		in->setCallback(&ControllerInput::phrase_callback);
 		id = in->getPortName(keyboard_port);
 		open = true;
-
 		std::cout << "Connected input to " << id << std::endl << std::endl;
 	}
 	else
@@ -130,6 +126,8 @@ MidiIn::~MidiIn(){
 }
 
 void obtain_input(){
+	//this just holds up the UI thread while the input thread is live
+	cin.ignore();
 	std::cout << "Press enter when done: " << std::endl;
 	std::string temp;
 	std::getline(std::cin, temp);
@@ -228,6 +226,7 @@ void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned cha
 				last_message == (REST_MSG | channel)) &&
 				msg == (REST_MSG | channel) &&
 				pitch == 0 && velocity == 64){
+			std::cout << "added rest" << std::endl;
 			phrase.push_back(std::vector<Note>{Rest(1)});
 		}
 
