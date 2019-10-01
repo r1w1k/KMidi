@@ -1,12 +1,21 @@
 #ifndef PROJECT_SAVER_H
 #define PROJECT_SAVER_H
 
+#include "Phrase.h"
 #include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 
 class Project{
 public:
-	nlohmann::json json;
-};
+	json j;
+	std::string filename;
+	std::vector<Arp> playlist;
 
+	void print() const;
+	void save();
+	std::vector<Arp> load();
+};
 
 #endif

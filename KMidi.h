@@ -14,6 +14,7 @@
 #include <map>
 #include "RtMidi.h"
 #include "Phrase.h"
+#include "ProjectSaver.h"
 
 namespace KMidi{
 	extern std::map<int, std::string> note_names;

@@ -27,7 +27,6 @@ char get_option(std::string message=""){
 	return std::tolower(answer[0]);
 }
 
-
 std::vector<Arp> playlist{};
 int repeats{1};
 
@@ -140,6 +139,12 @@ void multiply(Arp& arp, bool redirect){
 	std::cin >> arp.repeat;
 	if (redirect) editor(arp);
 }
+void save_composition(){
+	Project p;
+	p.playlist = playlist;
+	p.save();
+	homescreen();
+}
 void homescreen(){
 	std::cout << std::endl << std::endl << std::endl << "Homescreen" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
@@ -147,6 +152,7 @@ void homescreen(){
 	std::cout << "n     new phrase" << std::endl;
 	std::cout << "e     edit phrase" << std::endl;
 	std::cout << "r     remove phrase" << std::endl;
+	std::cout << "s     save composition" << std::endl;
 	std::cout << "q     quit" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 
@@ -166,6 +172,8 @@ void homescreen(){
 		case 'r':
 			remove_phrase();
 			break;
+		case 's':
+			save_composition();
 		case 'q':
 			break;
 		default:

@@ -2,6 +2,7 @@
 #define PHRASE_H
 #include <vector>
 #include <string>
+#include <iostream>
 #include "Note.h"
 
 using namespace std;
@@ -12,10 +13,12 @@ public:
 	int count = 4;
 	int division = 4;
 
-	int resolution;
+	int resolution = 4;
 	int bpm = 100;
 	int repeat = 1;
 	vector<vector<Note>> phrase;
+	vector<vector<Note>> voices;
+
 	bool ringout = false;
 
 	void transpose(int halfsteps=0);
@@ -32,7 +35,6 @@ public:
 class Arp : public Phrase{
 public:
 	string name;
-	vector<vector<Note>> voices;
 	vector<int> pattern;
 
 	bool wraparound{false};
