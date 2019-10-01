@@ -37,16 +37,14 @@ void MidiOut::play(Phrase *p){
 			now = chrono::steady_clock::now();
 			then = now;
 
-			if (!p->ringout){
-				for (Note n : nVec){
-					if (n.velocity > 0){
-						note_off(n);	
-					}
+			for (Note n : nVec){
+				if (n.velocity > 0){
+					note_off(n);	
 				}
 			}
 		}
 	}
-	all_notes_off();
+	// all_notes_off();
 }
 
 MidiOut::MidiOut(int c){
@@ -89,6 +87,20 @@ void MidiOut::note_off(Note n){
 	message.at(0) = NOTE_OFF | channel;
 	message.at(1) = n.pitch;
 	message.at(2) = n.velocity;
+	out->sendMessage(&message);
+}
+void MidiOut::sustain_on(){
+	std::vector<unsigned char> message(3, '\0');
+	message.at(0) = CONTROL | channel;
+	message.at(1) = SUSTAIN;
+	message.at(2) = 127;
+	out->sendMessage(&message);
+}
+void MidiOut::sustain_off(){
+	std::vector<unsigned char> message(3, '\0');
+	message.at(0) = CONTROL | channel;
+	message.at(1) = SUSTAIN;
+	message.at(2) = 0;
 	out->sendMessage(&message);
 }
 void MidiOut::all_notes_off(){
@@ -207,7 +219,7 @@ void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned cha
 		int pitch = message->at(1);
 		int velocity = message->at(2);
 		//for debugging what messages are allowed:
-		// std::cout << msg << " " << pitch << " " << velocity << std::endl;
+		std::cout << msg << " " << pitch << " " << velocity << std::endl;
 		// std::vector<int> allowable { NOTE_ON, NOTE_OFF, MODULATE }
 
 		if (phrase.size() > 1000) phrase.clear();

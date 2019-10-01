@@ -78,10 +78,9 @@ void togglewrap(Arp& arp){
 
 void togglering(Arp& arp){
 	if (arp.ringout)
-		for (std::vector<Note> notes : arp.phrase)
-			for (Note n : notes)
-				mOut.note_off(n);
-			
+		mOut.sustain_off();
+	else mOut.sustain_on();
+	
 	arp.ringout = !arp.ringout;	
 	editor(arp);
 }

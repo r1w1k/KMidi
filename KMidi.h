@@ -4,12 +4,14 @@
 #define NOTE_ON 0b10010000
 #define NOTE_OFF 0b10000000
 #define CHANNEL_MODE 0b10110000
-#define MODULATE 0b10110000
+#define CONTROL 0b10110000
+#define SUSTAIN 64
 //REST_MSG is currently actually the pitch wheel for reface
 #define REST_MSG 0b11100000
 #define ALL_OFF 0b01111011
 #define KEYBOARD "nanoKEY2 KEYBOARD"
 #define KMIDI_OUTPUT "IAC Driver KMidi"
+
 
 #include <map>
 #include "RtMidi.h"
@@ -46,6 +48,8 @@ public:
 	void play(Phrase *p);
 	void note_on(Note n);
 	void note_off(Note n);
+	void sustain_on();
+	void sustain_off();
 
 	void all_notes_off();
 
