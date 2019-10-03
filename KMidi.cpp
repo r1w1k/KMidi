@@ -25,6 +25,12 @@ void MidiOut::play(Phrase *p){
 	std::vector<unsigned char> message(3, '\0');
 	auto now = chrono::steady_clock::now();
 	auto then = now;
+
+	if (p->ringout)
+		this->sustain_on();
+	else
+		this->sustain_off();
+
 	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
 			int length{0};
@@ -94,6 +100,7 @@ void MidiOut::sustain_on(){
 	message.at(1) = SUSTAIN;
 	message.at(2) = 127;
 	out->sendMessage(&message);
+	sustain = true;
 }
 void MidiOut::sustain_off(){
 	std::vector<unsigned char> message(3, '\0');
@@ -101,6 +108,7 @@ void MidiOut::sustain_off(){
 	message.at(1) = SUSTAIN;
 	message.at(2) = 0;
 	out->sendMessage(&message);
+	sustain = false;
 }
 void MidiOut::all_notes_off(){
 	std::vector<unsigned char> message(3, '\0');

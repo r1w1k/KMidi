@@ -32,7 +32,7 @@ int repeats{1};
 
 int main()
 {
-	newArp();
+	homescreen();
 	return 0;
 }
 
@@ -76,11 +76,7 @@ void togglewrap(Arp& arp){
 	editor(arp);
 }
 
-void togglering(Arp& arp){
-	if (arp.ringout)
-		mOut.sustain_off();
-	else mOut.sustain_on();
-	
+void togglering(Arp& arp){	
 	arp.ringout = !arp.ringout;	
 	editor(arp);
 }
@@ -144,6 +140,12 @@ void save_composition(){
 	p.save();
 	homescreen();
 }
+
+void load_composition(){
+	Project p;
+	playlist = p.load();
+	homescreen();
+}
 void homescreen(){
 	std::cout << std::endl << std::endl << std::endl << "Homescreen" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
@@ -152,6 +154,7 @@ void homescreen(){
 	std::cout << "e     edit phrase" << std::endl;
 	std::cout << "r     remove phrase" << std::endl;
 	std::cout << "s     save composition" << std::endl;
+	std::cout << "l     load composition" << std::endl;
 	std::cout << "q     quit" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 
@@ -173,6 +176,8 @@ void homescreen(){
 			break;
 		case 's':
 			save_composition();
+		case 'l':
+			load_composition();
 		case 'q':
 			break;
 		default:

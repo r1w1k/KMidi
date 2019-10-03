@@ -2,6 +2,7 @@
 #define PROJECT_SAVER_H
 
 #include <fstream>
+#include <streambuf>
 #include "Phrase.h"
 #include <nlohmann/json.hpp>
 

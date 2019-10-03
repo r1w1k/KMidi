@@ -52,6 +52,7 @@ public:
 	void sustain_off();
 
 	void all_notes_off();
+	bool sustain{ false };
 
 	MidiOut(int c=0);
 	~MidiOut();

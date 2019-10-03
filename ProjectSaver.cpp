@@ -58,18 +58,47 @@ void Project::save() {
  	std::cout << "Succesfully saved as " << filename + ".json!" << std::endl;
 }
 
+
 std::vector<Arp> Project::load(){
 	std::string filename{"untitled"};
 	std::cout << "Enter filename: ";
 	std::cin >> filename;
 
-	ifstream infile;
-	std::string file_body;
-	infile.open (filename);
-    while(!infile.eof)
-        std::getline(infile,file_body);
-	infile.close();
+	std::ifstream saved_file("./compositions/" + filename + ".json");
+	json json_file;
+	saved_file >> json_file;
 
-	json j_file = json::parse(file_body);
-	std::cout << "Loaded: " << std::endl << j_file.dump(2);
+	std::vector<Arp> ret{};
+	for (auto phrase : json_file["phrases"]){
+		Arp a;
+		a.length = phrase["length"];
+		a.count = phrase["count"];
+		a.division = phrase["division"];
+		a.resolution = phrase["resolution"];
+		a.bpm = phrase["bpm"];
+		a.repeat = phrase["repeat"];
+		a.count = phrase["count"];
+
+		a.phrase = {};
+		for (auto step : phrase["phrase"]){
+			std::vector<Note> step_notes{};
+			for (auto note : step){
+				Note n(note["pitch"], note["duration"], note["velocity"]);
+				step_notes.push_back(n);
+			}
+			a.phrase.push_back(step_notes);
+		}
+
+		a.voices = {};
+		for (auto step : phrase["voices"]){
+			std::vector<Note> step_voices{};
+			for (auto note : step){
+				Note n(note["pitch"], note["duration"], note["velocity"]);
+				step_voices.push_back(n);
+			}
+			a.voices.push_back(step_voices);
+		}
+		ret.push_back(a);
+	}
+	return ret;
 }
