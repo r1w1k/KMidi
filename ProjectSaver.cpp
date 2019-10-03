@@ -51,14 +51,25 @@ void Project::save() {
 		}
 		j["phrases"] = phrases;
 	}
-	std::cout << j.dump(3) << std::endl;
+	ofstream json_file;
+	json_file.open("./compositions/" + filename + ".json");
+	json_file << j.dump(2);
+	json_file.close();
+ 	std::cout << "Succesfully saved as " << filename + ".json!" << std::endl;
 }
 
-// std::vector<Arp> Project::load{
-// 	std::string file="untitled";
-// 	std::string filename{"untitled"};
-// 	std::cout << "Enter filename: ";
-// 	std::cin >> filename;
+std::vector<Arp> Project::load(){
+	std::string filename{"untitled"};
+	std::cout << "Enter filename: ";
+	std::cin >> filename;
 
+	ifstream infile;
+	std::string file_body;
+	infile.open (filename);
+    while(!infile.eof)
+        std::getline(infile,file_body);
+	infile.close();
 
-// }
+	json j_file = json::parse(file_body);
+	std::cout << "Loaded: " << std::endl << j_file.dump(2);
+}

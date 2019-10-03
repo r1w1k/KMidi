@@ -59,13 +59,12 @@ MidiOut::MidiOut(int c){
 	for (int i = 0; i < ports; i++)
 		std::cout << i + 1 << ": " << out->getPortName(i) << std::endl;
 	std::cout << "Enter output port number: ";
-	std::cin >> output_port;
+	std::cin >> output_port; output_port--;
 	
 	if (output_port >= 0 && output_port < ports){
 		out->openPort(output_port);
 		id = out->getPortName(output_port);
 		std::cout << "Connected output to " << id << std::endl << std::endl;
-		;
 	}
 	else
 		std::cout << "MIDI Out uninitialized" << std::endl;

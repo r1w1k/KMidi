@@ -1,6 +1,7 @@
 #ifndef PROJECT_SAVER_H
 #define PROJECT_SAVER_H
 
+#include <fstream>
 #include "Phrase.h"
 #include <nlohmann/json.hpp>
 
