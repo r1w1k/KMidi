@@ -23,6 +23,7 @@ void Project::save() {
 			j_phrase["bpm"] = arp.bpm;
 			j_phrase["repeat"] = arp.repeat;
 			j_phrase["voices"] = json::array();
+			j_phrase["pattern"] = json::array();
 
 			for (std::vector<Note> notes : arp.voices){
 				json j_notes = json::array();
@@ -35,7 +36,9 @@ void Project::save() {
 				}
 				j_phrase["voices"].push_back(j_notes);
 			}
-
+			for (int i : arp.pattern)
+				j_phrase["pattern"].push_back(i);
+			
 			for (std::vector<Note> notes : arp.phrase){
 				json j_notes = json::array();
 				for (Note n : notes){
@@ -98,7 +101,16 @@ std::vector<Arp> Project::load(){
 			}
 			a.voices.push_back(step_voices);
 		}
+		a.pattern = {};
+		for (auto p : phrase["pattern"]){
+			a.pattern.push_back(p);
+		}
 		ret.push_back(a);
+		std::cout << "Phrase: " << std::endl;
+		for (int i : a.pattern){
+			std::cout << i << " ";
+		}
+		std::cout << std::endl;
 	}
 	return ret;
 }

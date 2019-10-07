@@ -11,7 +11,7 @@ void editor(Arp& arp);
 void edit_phrase();
 void add_repeats();
 void remove_phrase();
-void newArp();
+void new_arp();
 void new_time_sig(Arp& arp, bool redirect=true);
 void new_bpm(Arp& arp, bool redirect=true);
 
@@ -46,7 +46,7 @@ void change_voices(Arp& arp){
 	editor(arp);
 }
 
-void newArp(){
+void new_arp(){
 	Arp a;
 	a.voices = get_arp_voices();
 	a.length = 20;
@@ -146,6 +146,26 @@ void load_composition(){
 	playlist = p.load();
 	homescreen();
 }
+void global_edit(){
+	std::cout << "b     bpm" << std::endl;
+	std::cout << "t     time signature" << std::endl;
+	switch(get_option("Enter option: ")){
+		case 'b': {
+			int bpm{100};
+			std::cout << "Enter bpm: ";
+			std::cin >> bpm;
+			for (Arp& a : playlist){
+				a.bpm = bpm;
+				a.sequence(a.pattern);
+			}
+			break;
+		}
+		case 't':
+			break;
+	}
+	homescreen();
+}
+
 void homescreen(){
 	std::cout << std::endl << std::endl << std::endl << "Homescreen" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
@@ -155,15 +175,17 @@ void homescreen(){
 	std::cout << "r     remove phrase" << std::endl;
 	std::cout << "s     save composition" << std::endl;
 	std::cout << "l     load composition" << std::endl;
+	std::cout << "g.    global edit" << std::endl;
 	std::cout << "q     quit" << std::endl;
 	std::cout << "------------------------------------------------------------" << std::endl << std::endl;
 
 	switch(get_option("Enter option: ")){
+		cin.ignore();
 		case 'p':
 			play_all();
 			break;
 		case 'n':
-			newArp();
+			new_arp();
 			break;
 		case 'e':
 			edit_phrase();
@@ -176,8 +198,13 @@ void homescreen(){
 			break;
 		case 's':
 			save_composition();
+			break;
 		case 'l':
 			load_composition();
+			break;
+		case 'g':
+			global_edit();
+			break;
 		case 'q':
 			break;
 		default:
@@ -254,7 +281,7 @@ void editor(Arp& arp){
 			case 'r':
 				togglering(arp); break;
 			case 'a':
-				newArp(); break;
+				new_arp(); break;
 			case 'm':
 				multiply(arp); break;
 			case 'c':
@@ -269,5 +296,5 @@ void editor(Arp& arp){
 				editor(arp);
 		}
 	}
-	else newArp();
+	else new_arp();
 }

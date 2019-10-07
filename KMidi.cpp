@@ -50,7 +50,6 @@ void MidiOut::play(Phrase *p){
 			}
 		}
 	}
-	// all_notes_off();
 }
 
 MidiOut::MidiOut(int c){
@@ -58,7 +57,6 @@ MidiOut::MidiOut(int c){
 	out = new RtMidiOut();
 
 	unsigned int ports = out->getPortCount();
-
 	int output_port{-99};
 
 	std::cout << "MIDI OUT available ports:" << std::endl;
