@@ -17,7 +17,7 @@ void Arp::print() const {
 }
 
 void Arp::sequence(vector<int> seq){
-	double duration_ms = 60.0/bpm/resolution * 1000;
+	double duration_ms = 60.0/bpm/resolution * 1000.0;
 	pattern = seq;
 	if (!phrase.empty()) phrase = {};
 	int  step{0};

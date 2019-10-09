@@ -20,16 +20,19 @@ void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
 
-void MidiOut::play(Phrase *p){
-	//TOD0: this needs to not only do intra-phrase latency, but latency between phrases (or between repeats of a single phrase)
+double MidiOut::play(Phrase *p, double l){
+	//TODO: latency between separate calls to play
 	std::vector<unsigned char> message(3, '\0');
-	auto now = chrono::steady_clock::now();
-	auto then = now;
 
 	if (p->ringout)
 		this->sustain_on();
 	else
 		this->sustain_off();
+
+	double elapsed{0};
+	double latency{0};
+	double total_expected_time{-l};
+	auto start = chrono::steady_clock::now();
 
 	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
@@ -39,9 +42,10 @@ void MidiOut::play(Phrase *p){
 					note_on(n);
 				}
 			}
-			sleep(nVec.at(0).duration);
-			now = chrono::steady_clock::now();
-			then = now;
+			elapsed = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start).count();
+			latency = 1.5*(elapsed - total_expected_time);
+			total_expected_time += nVec.at(0).duration;
+			sleep(nVec.at(0).duration - latency);
 
 			for (Note n : nVec){
 				if (n.velocity > 0){
@@ -50,6 +54,7 @@ void MidiOut::play(Phrase *p){
 			}
 		}
 	}
+	return latency;
 }
 
 MidiOut::MidiOut(int c){

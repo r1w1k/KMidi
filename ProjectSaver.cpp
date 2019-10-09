@@ -106,11 +106,6 @@ std::vector<Arp> Project::load(){
 			a.pattern.push_back(p);
 		}
 		ret.push_back(a);
-		std::cout << "Phrase: " << std::endl;
-		for (int i : a.pattern){
-			std::cout << i << " ";
-		}
-		std::cout << std::endl;
 	}
 	return ret;
 }

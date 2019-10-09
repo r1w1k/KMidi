@@ -61,10 +61,11 @@ void play_current(Arp& arp){
 	editor(arp);
 }
 void play_all(){
+	double latency{0};
 	for (int i=0; i < repeats; i++){
 		for (int j=0; j < playlist.size(); j++){
 			std::cout << "Phrase " << j + 1 << std::endl;
-			mOut.play(&playlist.at(j));
+			latency = mOut.play(&playlist.at(j), latency);
 		}
 	}
 	homescreen();

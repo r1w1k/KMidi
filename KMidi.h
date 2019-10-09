@@ -45,7 +45,7 @@ public:
 	std::string id;
 
 	void sleep(const int &ms);
-	void play(Phrase *p);
+	double play(Phrase *p, double l=0);
 	void note_on(Note n);
 	void note_off(Note n);
 	void sustain_on();
