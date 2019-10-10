@@ -54,10 +54,14 @@ void Arp::extend(int oct){
 }
 
 void Phrase::transpose(int halfsteps){
-	// for (auto &note : notes) note.pitch += halfsteps;
+	for (auto &step : phrase){
+		for (auto &note : step){
+			note.pitch += halfsteps;
+		}
+	}
 }
 void Phrase::oct(int octaves){
-	// this->transpose(octaves*12);
+	this->transpose(octaves*12);
 }
 
 Arp::Arp(vector<int> v, int length_val)

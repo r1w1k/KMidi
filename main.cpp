@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #include "KMidi.h"
 
@@ -60,14 +61,28 @@ void play_current(Arp& arp){
 	mOut.play(&arp);
 	editor(arp);
 }
+
+std::atomic<bool> stop_play;
+void threadcall(){
+	stop_play = false;
+	std::cout << "Enter q to stop: ";
+	std::string temp{};
+	std::cin >> temp;
+	stop_play = true;
+}
+
 void play_all(){
+	std::thread stopper(threadcall);
 	double latency{0};
 	for (int i=0; i < repeats; i++){
 		for (int j=0; j < playlist.size(); j++){
-			std::cout << "Phrase " << j + 1 << std::endl;
-			latency = mOut.play(&playlist.at(j), latency);
+			if (!stop_play){
+				std::cout << "Phrase " << j + 1 << std::endl;
+				latency = mOut.play(&playlist.at(j), latency);
+			}
 		}
 	}
+	stopper.join();
 	homescreen();
 }
 
@@ -150,6 +165,7 @@ void load_composition(){
 void global_edit(){
 	std::cout << "b     bpm" << std::endl;
 	std::cout << "t     time signature" << std::endl;
+	std::cout << "p     transpose" << std::endl;
 	switch(get_option("Enter option: ")){
 		case 'b': {
 			int bpm{100};
@@ -162,6 +178,14 @@ void global_edit(){
 			break;
 		}
 		case 't':
+			break;
+		case 'p':
+			int halfsteps{0};
+			std::cout << "Enter halfsteps: ";
+			std::cin >> halfsteps;
+			for (Arp& a : playlist){
+				a.transpose(halfsteps);
+			}
 			break;
 	}
 	homescreen();

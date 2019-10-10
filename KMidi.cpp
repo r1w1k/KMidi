@@ -20,8 +20,9 @@ void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
 }
 
+
 double MidiOut::play(Phrase *p, double l){
-	//TODO: latency between separate calls to play
+
 	std::vector<unsigned char> message(3, '\0');
 
 	if (p->ringout)
@@ -51,7 +52,7 @@ double MidiOut::play(Phrase *p, double l){
 				if (n.velocity > 0){
 					note_off(n);	
 				}
-			}
+			}	
 		}
 	}
 	return latency;
