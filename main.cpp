@@ -65,24 +65,26 @@ void play_current(Arp& arp){
 std::atomic<bool> stop_play;
 void threadcall(){
 	stop_play = false;
-	std::cout << "Enter q to stop: ";
-	std::string temp{};
-	std::cin >> temp;
-	stop_play = true;
+	// std::cout << "Enter q to stop: ";
+	// std::string temp{};
+	// std::cin >> temp;
+	// stop_play = true;
 }
 
 void play_all(){
-	std::thread stopper(threadcall);
 	double latency{0};
 	for (int i=0; i < repeats; i++){
 		for (int j=0; j < playlist.size(); j++){
 			if (!stop_play){
 				std::cout << "Phrase " << j + 1 << std::endl;
 				latency = mOut.play(&playlist.at(j), latency);
+				if (latency == -999){
+					std::cout << "Stopped!" << std::endl;
+					break;
+				}
 			}
 		}
 	}
-	stopper.join();
 	homescreen();
 }
 

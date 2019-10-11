@@ -6,6 +6,7 @@
 #define CHANNEL_MODE 0b10110000
 #define CONTROL 0b10110000
 #define SUSTAIN 64
+#define STOP_KNOB 56
 //REST_MSG is currently actually the pitch wheel for reface
 #define REST_MSG 0b11100000
 #define ALL_OFF 0b01111011
@@ -23,6 +24,7 @@ namespace KMidi{
 	extern std::map<int, std::string> note_names_flats;
 	std::string note_name(int decimal, bool use_flats = true);
 }
+
 
 class MidiIn{
 public:

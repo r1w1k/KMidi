@@ -10,11 +10,12 @@ namespace ControllerInput {
 	std::vector<std::vector<Note>> phrase{};
 	unsigned char last_message = NOTE_OFF | channel;
 	bool recording { false };
+	bool playing { false };
+	bool stop_flag { false };
 
 	void phrase_callback(double deltatime, std::vector<unsigned char> *message, void *userData);
 	void tap_tempo_callback(double deltatime, std::vector<unsigned char> *message, void *userData);
 }
-
 
 void MidiOut::sleep(const int &ms){
 	usleep(ms*1000);
@@ -22,7 +23,7 @@ void MidiOut::sleep(const int &ms){
 
 
 double MidiOut::play(Phrase *p, double l){
-
+	ControllerInput::playing = true;
 	std::vector<unsigned char> message(3, '\0');
 
 	if (p->ringout)
@@ -37,24 +38,32 @@ double MidiOut::play(Phrase *p, double l){
 
 	for (int i = 0; i < p->repeat; i++){
 		for (vector<Note> nVec : p->phrase){
-			int length{0};
-			for (Note n : nVec){
-				if (n.velocity > 0){
-					note_on(n);
+			if (!ControllerInput::stop_flag){
+				int length{0};
+				for (Note n : nVec){
+					if (n.velocity > 0){
+						note_on(n);
+					}
 				}
-			}
-			elapsed = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start).count();
-			latency = 1.5*(elapsed - total_expected_time);
-			total_expected_time += nVec.at(0).duration;
-			sleep(nVec.at(0).duration - latency);
+				elapsed = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - start).count();
+				latency = 1.5*(elapsed - total_expected_time);
+				total_expected_time += nVec.at(0).duration;
+				sleep(nVec.at(0).duration - latency);
 
-			for (Note n : nVec){
-				if (n.velocity > 0){
-					note_off(n);	
-				}
-			}	
+				for (Note n : nVec){
+					if (n.velocity > 0){
+						note_off(n);	
+					}
+				}	
+			}
+			else{
+				ControllerInput::stop_flag = false;
+				ControllerInput::playing = false;
+				return -999;
+			}
 		}
 	}
+	ControllerInput::playing = false;
 	return latency;
 }
 
@@ -225,16 +234,15 @@ std::string KMidi::note_name(int note_pitch, bool use_flats){
 }
 
 void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned char> *message, void *userData){
+	if (phrase.size() > 1000) phrase.clear();
+	int msg = message->at(0);
+	int pitch = message->at(1);
+	int velocity = message->at(2);
+	std::cout << msg << " " << pitch << " " << velocity << std::endl;
+
 	if (recording){
-		int msg = message->at(0);
-		int pitch = message->at(1);
-		int velocity = message->at(2);
 		//for debugging what messages are allowed:
-		std::cout << msg << " " << pitch << " " << velocity << std::endl;
-		// std::vector<int> allowable { NOTE_ON, NOTE_OFF, MODULATE }
-
-		if (phrase.size() > 1000) phrase.clear();
-
+		// std::cout << msg << " " << pitch << " " << velocity << std::endl;
 		if (msg == (NOTE_ON | channel)){
 			if (last_message == (NOTE_ON | channel)){
 				phrase.back().push_back(Note(pitch, 1, velocity));
@@ -257,6 +265,9 @@ void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned cha
 			last_message = NOTE_OFF | channel;
 		}
 		else last_message = msg;
+	}
+	else if (playing && msg == (CONTROL | channel) && pitch == STOP_KNOB && velocity == 0){
+		stop_flag = true;
 	}
 }
 
