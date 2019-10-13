@@ -12,8 +12,9 @@ using json = nlohmann::json;
 class Project{
 public:
 	json j;
-	std::string filename;
-	std::vector<Arp> playlist;
+	std::string filename{};
+	std::vector<Arp> playlist{};
+	std::vector<char> structure{};
 
 	void print() const;
 	void save();

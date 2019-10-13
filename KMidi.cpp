@@ -238,7 +238,7 @@ void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned cha
 	int msg = message->at(0);
 	int pitch = message->at(1);
 	int velocity = message->at(2);
-	std::cout << msg << " " << pitch << " " << velocity << std::endl;
+	// std::cout << msg << " " << pitch << " " << velocity << std::endl;
 
 	if (recording){
 		//for debugging what messages are allowed:

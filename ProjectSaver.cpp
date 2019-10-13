@@ -14,7 +14,8 @@ void Project::save() {
 	j.clear();
 	if (true){ //if playlist not empty
 		json phrases = json::array();
-		for (Arp& arp : playlist){
+		json j_structure = json::array();
+		for (const Arp& arp : playlist){
 			json j_phrase;
 			j_phrase["length"] = arp.length;
 			j_phrase["count"] = arp.count;
@@ -25,7 +26,7 @@ void Project::save() {
 			j_phrase["voices"] = json::array();
 			j_phrase["pattern"] = json::array();
 
-			for (std::vector<Note> notes : arp.voices){
+			for (const std::vector<Note>& notes : arp.voices){
 				json j_notes = json::array();
 				for (Note n : notes){
 					json j_note;
@@ -39,7 +40,7 @@ void Project::save() {
 			for (int i : arp.pattern)
 				j_phrase["pattern"].push_back(i);
 			
-			for (std::vector<Note> notes : arp.phrase){
+			for (const std::vector<Note>& notes : arp.phrase){
 				json j_notes = json::array();
 				for (Note n : notes){
 					json j_note;
@@ -53,6 +54,12 @@ void Project::save() {
 			phrases.push_back(j_phrase);
 		}
 		j["phrases"] = phrases;
+
+		for (const char& s : structure){
+			j_structure.push_back(s);
+		}
+		j["structure"] = j_structure;
+
 	}
 	ofstream json_file;
 	json_file.open("./compositions/" + filename + ".json");
@@ -71,8 +78,12 @@ std::vector<Arp> Project::load(){
 	json json_file;
 	saved_file >> json_file;
 
-	std::vector<Arp> ret{};
-	for (auto phrase : json_file["phrases"]){
+	playlist = {};
+	structure = {};
+	for (int s : json_file["structure"]){
+		structure.push_back(s);
+	}
+	for (const auto& phrase : json_file["phrases"]){
 		Arp a;
 		a.length = phrase["length"];
 		a.count = phrase["count"];
@@ -83,7 +94,7 @@ std::vector<Arp> Project::load(){
 		a.count = phrase["count"];
 
 		a.phrase = {};
-		for (auto step : phrase["phrase"]){
+		for (const auto& step : phrase["phrase"]){
 			std::vector<Note> step_notes{};
 			for (auto note : step){
 				Note n(note["pitch"], note["duration"], note["velocity"]);
@@ -93,7 +104,7 @@ std::vector<Arp> Project::load(){
 		}
 
 		a.voices = {};
-		for (auto step : phrase["voices"]){
+		for (const auto& step : phrase["voices"]){
 			std::vector<Note> step_voices{};
 			for (auto note : step){
 				Note n(note["pitch"], note["duration"], note["velocity"]);
@@ -102,10 +113,10 @@ std::vector<Arp> Project::load(){
 			a.voices.push_back(step_voices);
 		}
 		a.pattern = {};
-		for (auto p : phrase["pattern"]){
+		for (const auto& p : phrase["pattern"]){
 			a.pattern.push_back(p);
 		}
-		ret.push_back(a);
+		playlist.push_back(a);
 	}
-	return ret;
+	return playlist;
 }

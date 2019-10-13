@@ -28,7 +28,8 @@ char get_option(std::string message=""){
 	return std::tolower(answer[0]);
 }
 
-std::vector<Arp> playlist{};
+Project project;
+
 int repeats{1};
 
 int main()
@@ -72,12 +73,16 @@ void threadcall(){
 }
 
 void play_all(){
+	if (project.structure.empty()){
+		for (int i=0; i < project.playlist.size(); i++)
+			project.structure.push_back(i);
+	}
 	double latency{0};
 	for (int i=0; i < repeats; i++){
-		for (int j=0; j < playlist.size(); j++){
+		for (const char& c : project.structure){
 			if (!stop_play){
-				std::cout << "Phrase " << j + 1 << std::endl;
-				latency = mOut.play(&playlist.at(j), latency);
+				std::cout << "Phrase " << c + 1 << std::endl;
+				latency = mOut.play(&project.playlist.at(c), latency);
 				if (latency == -999){
 					std::cout << "Stopped!" << std::endl;
 					break;
@@ -153,27 +158,37 @@ void multiply(Arp& arp, bool redirect){
 	if (redirect) editor(arp);
 }
 void save_composition(){
-	Project p;
-	p.playlist = playlist;
-	p.save();
+	project.save();
 	homescreen();
 }
 
 void load_composition(){
-	Project p;
-	playlist = p.load();
+	project.load();
+	homescreen();
+}
+void structure(){
+	project.structure = {};
+
+	std::cout << "Enter structure: ";
+	std::string s{};
+	std::cin >> s;
+
+	for (const char& c : s){
+		project.structure.push_back(toupper(c) - 65);
+	}
 	homescreen();
 }
 void global_edit(){
 	std::cout << "b     bpm" << std::endl;
 	std::cout << "t     time signature" << std::endl;
+	std::cout << "s     structure" << std::endl;
 	std::cout << "p     transpose" << std::endl;
 	switch(get_option("Enter option: ")){
 		case 'b': {
 			int bpm{100};
 			std::cout << "Enter bpm: ";
 			std::cin >> bpm;
-			for (Arp& a : playlist){
+			for (Arp& a : project.playlist){
 				a.bpm = bpm;
 				a.sequence(a.pattern);
 			}
@@ -181,11 +196,14 @@ void global_edit(){
 		}
 		case 't':
 			break;
+		case 's':
+			structure();
+			break;
 		case 'p':
 			int halfsteps{0};
 			std::cout << "Enter halfsteps: ";
 			std::cin >> halfsteps;
-			for (Arp& a : playlist){
+			for (Arp& a : project.playlist){
 				a.transpose(halfsteps);
 			}
 			break;
@@ -243,8 +261,8 @@ void edit_phrase(){
 	int p;
 	std::cout << "Enter phrase number:" << std::endl;
 	std::cin >> p;
-	if (p > 0 && p <= playlist.size()){
-		editor(playlist[p-1]);
+	if (p > 0 && p <= project.playlist.size()){
+		editor(project.playlist[p-1]);
 	}
 
 }
@@ -258,9 +276,10 @@ void remove_phrase(){
 	int p;
 	std::cout << "Enter phrase number:" << std::endl;
 	std::cin >> p;
-	if (p > 0 && p <= playlist.size()){
-		playlist.erase(playlist.begin() + p-1);
+	if (p > 0 && p <= project.playlist.size()){
+		project.playlist.erase(project.playlist.begin() + p-1);
 	}
+	homescreen();
 }
 
 void editor(Arp& arp){
@@ -312,7 +331,7 @@ void editor(Arp& arp){
 			case 'm':
 				multiply(arp); break;
 			case 'c':
-				playlist.push_back(arp);
+				project.playlist.push_back(arp);
 				homescreen();
 				break;
 			case 'e':
