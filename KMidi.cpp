@@ -37,11 +37,11 @@ double MidiOut::play(Phrase *p, double l){
 	auto start = chrono::steady_clock::now();
 
 	for (int i = 0; i < p->repeat; i++){
-		for (vector<Note> nVec : p->phrase){
+		for (const vector<Note>& nVec : p->phrase){
 			if (!ControllerInput::stop_flag){
 				int length{0};
-				for (Note n : nVec){
-					if (n.velocity > 0){
+				for (const Note& n : nVec){
+					if (n.velocity > 0 && !n.muted){
 						note_on(n);
 					}
 				}
@@ -157,24 +157,41 @@ MidiIn::~MidiIn(){
 	delete in;
 }
 
-void obtain_input(){
+void obtain_input(const std::string& message="Press enter when done:"){
 	//this just holds up the UI thread while the input thread is live
 	cin.ignore();
-	std::cout << "Press enter when done: " << std::endl;
+	std::cout << message << std::endl;
 	std::string temp;
 	std::getline(std::cin, temp);
 }
-std::vector<std::vector<Note>> MidiIn::get_voices(){
+std::vector<std::vector<Note>> MidiIn::get_voices(const std::string& message){
 	ControllerInput::phrase.clear();
 	ControllerInput::recording = true;
 	if (open){
-		obtain_input();
+		obtain_input(message);
 		ControllerInput::recording = false;
 		return ControllerInput::phrase;
 	}
 	else {
 		//just some Cmin7 placeholder when no keyboard is available
 		return {{Note(48)}, {Note(58)}, {Note(63)}, {Note(67)}, {Note(68)}};
+	}
+}
+void MidiIn::slice(Phrase& phrase){
+	std::vector<std::vector<Note>> pattern = get_voices("Enter notes and rests, press enter when done:");
+	std::vector<bool> slice_pattern{};
+	//if the note entered is a REST, push back FALSE
+	for (const std::vector<Note>& n : pattern){
+		slice_pattern.push_back(n[0].velocity > 0);
+	}
+	int index{0};
+	for (std::vector<Note>& step : phrase.phrase){
+		bool mute = !(slice_pattern[index%slice_pattern.size()]);
+		for (Note& n : step){
+			n.muted = mute;
+			std::cout << "Pitch: " << n.pitch << " Muted: " << n.muted << std::endl;
+		}
+		index++;
 	}
 }
 
@@ -253,20 +270,16 @@ void ControllerInput::phrase_callback(double deltatime, std::vector<unsigned cha
 				phrase.push_back(std::vector<Note>{new_note});
 			}
 		}
-		else if ((last_message == (NOTE_OFF | channel) ||
-				last_message == (REST_MSG | channel)) &&
-				msg == (REST_MSG | channel) &&
-				pitch == 0 && velocity == 64){
+		else if(msg == (CONTROL | channel) && pitch == ADD_REST){
 			std::cout << "added rest" << std::endl;
 			phrase.push_back(std::vector<Note>{Rest(1)});
 		}
-
-		if (msg == (NOTE_ON | channel) && velocity == 0){
+		if (msg == (NOTE_ON | channel) && velocity == 0)
 			last_message = NOTE_OFF | channel;
-		}
 		else last_message = msg;
 	}
 	else if (playing && msg == (CONTROL | channel) && pitch == STOP_KNOB && velocity == 0){
+		std::cout <<"stop!" << std::endl;
 		stop_flag = true;
 	}
 }

@@ -6,9 +6,8 @@
 #define CHANNEL_MODE 0b10110000
 #define CONTROL 0b10110000
 #define SUSTAIN 64
-#define STOP_KNOB 56
-//REST_MSG is currently actually the pitch wheel for reface
-#define REST_MSG 0b11100000
+#define STOP_KNOB 83
+#define ADD_REST 0b00111000
 #define ALL_OFF 0b01111011
 #define KEYBOARD "nanoKEY2 KEYBOARD"
 #define KMIDI_OUTPUT "IAC Driver KMidi"
@@ -32,7 +31,9 @@ public:
 	bool open = false;
 	std::string id;
 
-	std::vector<std::vector<Note>> get_voices();
+	std::vector<std::vector<Note>> get_voices(const std::string& message="Press enter when done:");
+	
+	void slice(Phrase& phrase);
 	int tap_tempo();
 	void clear_queue();
 

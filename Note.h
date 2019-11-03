@@ -6,6 +6,7 @@ public:
 	int pitch;
 	double duration; //in steps, whatever the resolution is
 	int velocity;
+	bool muted = false;
 	Note(int p, double d=125, int v=90);
 	Note(const Note &source);
 };

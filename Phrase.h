@@ -23,6 +23,14 @@ public:
 
 	void transpose(int halfsteps=0);
 	void oct(int octaves=0);
+	void slice(vector<bool> slice){
+		size_t slice_index{0};
+		for (std::vector<Note>& n : phrase){
+			if (slice[slice_index])
+				n = std::vector<Note>{Rest(1)};
+		}
+	}
+
 	virtual void print() const;
 
 

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <thread>
 
 #include "KMidi.h"
 
@@ -40,7 +39,7 @@ int main()
 
 
 std::vector<std::vector<Note>> get_arp_voices(){
-	return mIn.get_voices();
+	return mIn.get_voices("Enter notes, press enter when done:");
 }	
 
 void change_voices(Arp& arp){
@@ -63,13 +62,12 @@ void play_current(Arp& arp){
 	editor(arp);
 }
 
-std::atomic<bool> stop_play;
-void threadcall(){
-	stop_play = false;
-	// std::cout << "Enter q to stop: ";
-	// std::string temp{};
-	// std::cin >> temp;
-	// stop_play = true;
+void get_slice(Arp& arp){
+	mIn.slice(arp);
+	for (std::vector<Note> notes : arp.phrase)
+		for (Note n : notes)
+			std::cout << "Muted now? " << n.muted << std::endl;
+	editor(arp);
 }
 
 void play_all(){
@@ -80,14 +78,9 @@ void play_all(){
 	double latency{0};
 	for (int i=0; i < repeats; i++){
 		for (const char& c : project.structure){
-			if (!stop_play){
-				std::cout << "Phrase " << c + 1 << std::endl;
-				latency = mOut.play(&project.playlist.at(c), latency);
-				if (latency == -999){
-					std::cout << "Stopped!" << std::endl;
-					break;
-				}
-			}
+			std::cout << "Phrase " << c + 1 << std::endl;
+			latency = mOut.play(&project.playlist.at(c), latency);
+			if (latency == -999) homescreen();
 		}
 	}
 	homescreen();
@@ -296,6 +289,7 @@ void editor(Arp& arp){
 		std::cout << std::endl << arp.count << "/" << arp.division << std::endl;
 		std::cout << arp.resolution << " notes per count" << std::endl << std::endl;
 		std::cout << "p     play" << std::endl;
+		std::cout << "l     slice" << std::endl;
 		std::cout << "n     change notes" << std::endl;
 		std::cout << "t     time signature" << std::endl;
 		std::cout << "s     define sequence" << std::endl;
@@ -312,6 +306,8 @@ void editor(Arp& arp){
 		switch(get_option("Enter option: ")){
 			case 'p':
 				play_current(arp); break;
+			case 'l':
+				get_slice(arp); break;
 			case 'n':
 				change_voices(arp); break;
 			case 't':
