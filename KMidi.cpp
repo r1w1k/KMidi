@@ -177,23 +177,6 @@ std::vector<std::vector<Note>> MidiIn::get_voices(const std::string& message){
 		return {{Note(48)}, {Note(58)}, {Note(63)}, {Note(67)}, {Note(68)}};
 	}
 }
-void MidiIn::slice(Phrase& phrase){
-	std::vector<std::vector<Note>> pattern = get_voices("Enter notes and rests, press enter when done:");
-	std::vector<bool> slice_pattern{};
-	//if the note entered is a REST, push back FALSE
-	for (const std::vector<Note>& n : pattern){
-		slice_pattern.push_back(n[0].velocity > 0);
-	}
-	int index{0};
-	for (std::vector<Note>& step : phrase.phrase){
-		bool mute = !(slice_pattern[index%slice_pattern.size()]);
-		for (Note& n : step){
-			n.muted = mute;
-			std::cout << "Pitch: " << n.pitch << " Muted: " << n.muted << std::endl;
-		}
-		index++;
-	}
-}
 
 int MidiIn::tap_tempo(){
 	in->setCallback(&ControllerInput::tap_tempo_callback);

@@ -63,10 +63,14 @@ void play_current(Arp& arp){
 }
 
 void get_slice(Arp& arp){
-	mIn.slice(arp);
-	for (std::vector<Note> notes : arp.phrase)
-		for (Note n : notes)
-			std::cout << "Muted now? " << n.muted << std::endl;
+	std::vector<std::vector<Note>> pattern = mIn.get_voices("Enter notes and rests, press enter when done:");
+	std::vector<bool> slice_pattern{};
+	//if the note entered is a REST, push back FALSE
+	for (const std::vector<Note>& n : pattern){
+		slice_pattern.push_back(n[0].velocity > 0);
+	}
+	arp.slice(slice_pattern);
+
 	editor(arp);
 }
 

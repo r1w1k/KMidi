@@ -33,7 +33,6 @@ public:
 
 	std::vector<std::vector<Note>> get_voices(const std::string& message="Press enter when done:");
 	
-	void slice(Phrase& phrase);
 	int tap_tempo();
 	void clear_queue();
 

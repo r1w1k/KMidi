@@ -23,13 +23,6 @@ public:
 
 	void transpose(int halfsteps=0);
 	void oct(int octaves=0);
-	void slice(vector<bool> slice){
-		size_t slice_index{0};
-		for (std::vector<Note>& n : phrase){
-			if (slice[slice_index])
-				n = std::vector<Note>{Rest(1)};
-		}
-	}
 
 	virtual void print() const;
 
@@ -44,12 +37,14 @@ class Arp : public Phrase{
 public:
 	string name;
 	vector<int> pattern;
+	vector<bool> slice_pattern={true};
 
 	bool wraparound{false};
 	
 	void extend(int oct=1);
+	void slice(vector<bool> slice_pattern);
+	void sequence(vector<int> seq={1});
 
-	void sequence(vector<int> seq);
 	virtual void print() const override;
 
 	Arp(vector<int> notes_val={}, int length_val=16);

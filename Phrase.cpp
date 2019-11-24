@@ -16,6 +16,18 @@ void Arp::print() const {
 
 }
 
+void Arp::slice(vector<bool> pattern){
+	slice_pattern = pattern;
+	int index{0};
+
+	for (std::vector<Note>& step : phrase){
+		bool mute = !(slice_pattern[index%slice_pattern.size()]);
+		for (Note& n : step)
+			n.muted = mute;
+		index++;
+	}
+}
+
 void Arp::sequence(vector<int> seq){
 	double duration_ms = 60.0/bpm/resolution * 1000.0;
 	pattern = seq;
@@ -42,6 +54,7 @@ void Arp::sequence(vector<int> seq){
 		//loop over the pattern vector to see what tone to jump to next
 		step += pattern.at(i % pattern.size());
 	}
+	slice(slice_pattern);
 }
 
 void Arp::extend(int oct){
