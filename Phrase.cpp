@@ -21,9 +21,9 @@ void Arp::slice(vector<bool> pattern){
 	int index{0};
 
 	for (std::vector<Note>& step : phrase){
-		bool mute = !(slice_pattern[index%slice_pattern.size()]);
+		bool disable = !(slice_pattern[index%slice_pattern.size()]);
 		for (Note& n : step)
-			n.muted = mute;
+			n.disabled = disable;
 		index++;
 	}
 }

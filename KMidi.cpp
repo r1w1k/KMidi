@@ -41,7 +41,7 @@ double MidiOut::play(Phrase *p, double l){
 			if (!ControllerInput::stop_flag){
 				int length{0};
 				for (const Note& n : nVec){
-					if (n.velocity > 0 && !n.muted){
+					if (n.velocity > 0 && !n.disabled){
 						note_on(n);
 					}
 				}

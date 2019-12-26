@@ -47,6 +47,7 @@ void Project::save() {
 					j_note["pitch"] = n.pitch;
 					j_note["velocity"] = n.velocity;
 					j_note["duration"] = n.duration;
+					j_note["disabled"] = n.disabled;
 					j_notes.push_back(j_note);
 				}
 				j_phrase["phrase"].push_back(j_notes);
@@ -98,6 +99,7 @@ std::vector<Arp> Project::load(){
 			std::vector<Note> step_notes{};
 			for (auto note : step){
 				Note n(note["pitch"], note["duration"], note["velocity"]);
+				n.disabled = note["disabled"];
 				step_notes.push_back(n);
 			}
 			a.phrase.push_back(step_notes);

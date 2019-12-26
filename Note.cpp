@@ -7,7 +7,7 @@ Note::Note(int p, double d, int v)
 
 }
 Note::Note(const Note &source)
-	: pitch{source.pitch}, duration{source.duration}, velocity{source.velocity}{
+	: pitch{source.pitch}, duration{source.duration}, velocity{source.velocity}, disabled{source.disabled} {
 }
 
 Rest::Rest(double d) : Note(0, d, 0){
